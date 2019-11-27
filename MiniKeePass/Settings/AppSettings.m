@@ -18,8 +18,8 @@
 #import "AppSettings.h"
 #import "KeychainUtils.h"
 #import "PasswordUtils.h"
-#import "CharacterSetsViewController.h"
-#import "MiniKeePassAppDelegate.h"
+#import "AppDelegate.h"
+#import "MiniKeePass-Swift.h"
 
 #define VERSION                    @"version"
 #define EXIT_TIME                  @"exitTime"
@@ -35,6 +35,7 @@
 #define REMEMBER_PASSWORDS_ENABLED @"rememberPasswordsEnabled"
 #define HIDE_PASSWORDS             @"hidePasswords"
 #define SORT_ALPHABETICALLY        @"sortAlphabetically"
+#define SEARCH_TITLE_ONLY          @"searchTitleOnly"
 #define PASSWORD_ENCODING          @"passwordEncoding"
 #define CLEAR_CLIPBOARD_ENABLED    @"clearClipboardEnabled"
 #define BACKUP_DISABLED            @"backupDisabled"
@@ -120,13 +121,14 @@ static AppSettings *sharedInstance;
         [defaultsDict setValue:[NSNumber numberWithBool:NO] forKey:REMEMBER_PASSWORDS_ENABLED];
         [defaultsDict setValue:[NSNumber numberWithBool:YES] forKey:HIDE_PASSWORDS];
         [defaultsDict setValue:[NSNumber numberWithBool:YES] forKey:SORT_ALPHABETICALLY];
+        [defaultsDict setValue:[NSNumber numberWithBool:NO] forKey:SEARCH_TITLE_ONLY];
         [defaultsDict setValue:[NSNumber numberWithInt:0] forKey:PASSWORD_ENCODING];
         [defaultsDict setValue:[NSNumber numberWithBool:NO] forKey:CLEAR_CLIPBOARD_ENABLED];
         [defaultsDict setValue:[NSNumber numberWithInt:0] forKey:CLEAR_CLIPBOARD_TIMEOUT];
         [defaultsDict setValue:[NSNumber numberWithBool:NO] forKey:BACKUP_DISABLED];
         [defaultsDict setValue:[NSNumber numberWithBool:YES] forKey:WEB_BROWSER_INTEGRATED];
         [defaultsDict setValue:[NSNumber numberWithInt:10] forKey:PW_GEN_LENGTH];
-        [defaultsDict setValue:[NSNumber numberWithInt:CHARACTER_SET_DEFAULT] forKey:PW_GEN_CHAR_SETS];
+        [defaultsDict setValue:[NSNumber numberWithInt:0x07] forKey:PW_GEN_CHAR_SETS];
         [userDefaults registerDefaults:defaultsDict];
 
         [self upgrade];
@@ -291,7 +293,7 @@ static AppSettings *sharedInstance;
 - (void)setBackupDisabled:(BOOL)backupDisabled {
     [userDefaults setBool:backupDisabled forKey:BACKUP_DISABLED];
 
-    NSURL *url = [NSURL fileURLWithPath:[MiniKeePassAppDelegate documentsDirectory] isDirectory:YES];
+    NSURL *url = [NSURL fileURLWithPath:[AppDelegate documentsDirectory] isDirectory:YES];
 
     NSError *error = nil;
     if (![url setResourceValue:[NSNumber numberWithBool:!backupDisabled] forKey:NSURLIsExcludedFromBackupKey error:&error]) {
@@ -333,6 +335,14 @@ static AppSettings *sharedInstance;
 
 - (void)setSortAlphabetically:(BOOL)sortAlphabetically {
     [userDefaults setBool:sortAlphabetically forKey:SORT_ALPHABETICALLY];
+}
+
+- (BOOL)searchTitleOnly {
+    return [userDefaults boolForKey:SEARCH_TITLE_ONLY];
+}
+
+- (void)setSearchTitleOnly:(BOOL)searchTitleOnly {
+    [userDefaults setBool:searchTitleOnly forKey:SEARCH_TITLE_ONLY];
 }
 
 - (NSStringEncoding)passwordEncoding {
